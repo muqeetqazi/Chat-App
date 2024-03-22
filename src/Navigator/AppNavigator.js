@@ -11,6 +11,7 @@ import {Provider} from "react-redux"
 import store from "../context/store";
 import ProfileScreen from "../Screen/ProfileScreen";
 import { AddToChatScreen, ChatScreen } from "../Screen";
+import ForgetPassword from "../Screen/ForgetScreen";
 
 const AppNavigator=()=>{
     return(
@@ -24,6 +25,7 @@ const AppNavigator=()=>{
                 <Stack.Screen name="AddToChatScreen" component={AddToChatScreen} options={{headerShown:false}}/>
                 <Stack.Screen name="ChatScreen" component={ChatScreen} options={{headerShown:false}}/>
                 <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{headerShown:false}}/>
+                <Stack.Screen name="ForgetPassword" component={ForgetPassword} options={{headerShown:false}}/>
             </Stack.Navigator>
             </Provider>
             

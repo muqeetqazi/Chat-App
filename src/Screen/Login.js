@@ -12,6 +12,8 @@ import { avatars } from '../Supports/avatar';
 import pic from '../../assets/flower.jpg';
 import logo from '../../assets/logo.png'
 import { MaterialIcons } from '@expo/vector-icons';
+import { TextInput } from 'react-native';
+import ForgetPassword from './ForgetScreen';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +22,8 @@ const Login = () => {
   const [isEmailTouched, setIsEmailTouched] = useState(false);
   const [isPasswordTouched, setIsPasswordTouched] = useState(false);
   const [avatar, setAvatar] = useState(avatars[0].image.asset.url);
+  const [hidePassword, setHidePassword] = useState(true); 
+    
   const navigation = useNavigation();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -44,7 +48,9 @@ const Login = () => {
     setEmail(text);
     setIsEmailTouched(true);
   };
-
+  const togglePasswordVisibility = () => {
+    setHidePassword(!hidePassword); // Toggle the state value
+  };
   const handlePasswordChange = (text) => {
     setPassword(text);
     setIsPasswordTouched(true);
@@ -87,11 +93,54 @@ const Login = () => {
         <Image source={logo} style={styles.logo} resizeMode='contain' />
         
         <Text style={styles.title}>Welcome back!!</Text>
-        <Input placeholder="Enter Email" value={email} onChangeText={handleEmailChange} />
-        {!email == '' && isEmailTouched && !isEmailValid && <Text style={{ marginLeft: 50, color: 'red' }}> Invalid Email</Text>}
-        <Input placeholder="Enter Password" secureTextEntry={true} value={password} onChangeText={handlePasswordChange} />
-        {!password == '' && isPasswordTouched && !isPasswordValid && <Text style={{ marginLeft: 50, color: 'red' }}> Invalid Password</Text>}
+        <View style={{ width: '90%', height: 50, borderWidth: 1, borderColor: 'gray', borderRadius: 10, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', marginTop: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 10 }}>
+    <MaterialIcons name="mail" size={24} color="#777" style={{ marginRight: 10 }} />
+    <TextInput
+        style={{ flex: 1 }}
+        placeholder="Enter Email"
+        value={email}
+        onChangeText={handleEmailChange}
+    />
+    {!email == '' && isEmailTouched && !isEmailValid &&  (
+        <TouchableOpacity onPress={() => alert("Please use @ and com in your email")}>
+            <MaterialIcons name="error" size={24} color="red" />
+        </TouchableOpacity>
+    )}
+</View>
+<View style={{ width: '90%', height: 50, borderWidth: 1, borderColor: 'gray', borderRadius: 10, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', marginTop: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 10 }}>
+  <MaterialIcons name="vpn-key" size={24} color='#777' style={{ marginRight: 10 }} />
+  <TextInput
+    style={{ flex: 1 }} // Ensure the TextInput expands to fill the available space
+    placeholder="Enter Password"
+    value={password}
+    onChangeText={handlePasswordChange}
+    secureTextEntry={hidePassword} // Use secureTextEntry prop to hide/show password
+  />
+  <TouchableOpacity onPress={togglePasswordVisibility} style={{ position: 'absolute', right: 10 }}>
+    <MaterialIcons
+      name={hidePassword ? 'visibility-off' : 'visibility'} // Use appropriate icon based on hidePassword state
+      size={24}
+      color={!isPasswordValid ? 'red' : '#777'}
+    />
+  </TouchableOpacity>
+  {!password == '' && isPasswordTouched && !isPasswordValid && (
+    <TouchableOpacity onPress={() => alert("Please use a password with at least 6 characters")}>
+      <MaterialIcons
+        name={hidePassword ? 'visibility-off' : 'visibility'} // Use appropriate icon based on hidePassword state
+        size={24}
+        color={!isPasswordValid ? 'red' : '#777'}
+      />
+    </TouchableOpacity>
+  )}
+</View>
+
         <Buttons title='Login' onPress={handlelogin} />
+        <View style={{ position: 'absolute',top:290, left: 210,margin:10 }}>
+  <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
+    <Text style={{ color: '#36802D', fontSize: 13, textDecorationLine: 'underline' }}>Forget Password?</Text>
+  </TouchableOpacity>
+</View>
+
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>Does't have an account??</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
@@ -135,7 +184,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     flexDirection: 'row',
-    marginTop: 30,
+    marginTop: 50,
     marginLeft: '25%',
     fontSize: 15,
   },

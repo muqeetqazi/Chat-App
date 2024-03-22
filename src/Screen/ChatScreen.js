@@ -147,7 +147,9 @@ const ChatScreen = ({ route, navigation }) => {
                                                 alignItems: 'flex-start', // Align items to the start to prevent overlapping
                                                 marginVertical: 5,
                                             }}
-                                        >
+                                        >   <View>
+                                            <Text>{msg.name}</Text>
+                                        </View>
                                             <Image
                                                 source={{ uri: msg?.user?.profilePic }}
                                                 resizeMode="cover"
