@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Platform, Button } from 'react-native'; // Import Button
+import { View, Text, StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
 import { useSelector } from "react-redux";
 import Input from '../componets/Input';
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { doc, setDoc } from "firebase/firestore";
 import { firebaseAuth, firestoreDB } from "../config/firebase";
-import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
-
 import { TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,35 +12,18 @@ const AddToChatScreen = (props) => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user);
   const [addChat, setAddChat] = useState("");
-  const [groupImage, setGroupImage] = useState(null);
+  const [selectedLogo, setSelectedLogo] = useState(null);
 
   useEffect(() => {
     // Request permission to access the photo library
     (async () => {
       if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to make this work!');
-        }
+        // Remove image picker permission request
       }
     })();
   }, []);
 
-  const selectImageFromGallery = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-  
-    if (!result.canceled) { // Updated from result.cancelled
-      const selectedImage = result.assets[0]; // Accessing selected image through assets array
-      setGroupImage(selectedImage.uri);
-    }
-  };
-  
-  // Function to open image picker
+  // Function to create a new chat
   const createNewChat = async () => {
     let id = `${Date.now()}`;
   
@@ -51,15 +32,14 @@ const AddToChatScreen = (props) => {
       _id: id,
       user: user,
       ChatName: addChat,
-      groupImage: groupImage // Include group image in the document
+      groupLogo: selectedLogo // Include selected logo in the document
     }
   
-    if (addChat != "") {
+    if (addChat !== "") {
       setDoc(doc(firestoreDB, "chats", id), _doc).then(() => {
         setAddChat("");
-        setGroupImage(null); // Reset group image after creating chat
-        navigation.replace("HomeScreen", { groupImage: _doc.groupImage }); // Replace with groupImage variable
-  
+        setSelectedLogo(null);
+        navigation.replace("HomeScreen");
       }).catch((err) => {
         console.log("Error:", err);
       })
@@ -79,7 +59,6 @@ const AddToChatScreen = (props) => {
         />
       </TouchableOpacity>
       <View style={styles.maincomponent}>
-
         <View style={{
           width: '80%',
           height: 50,
@@ -102,16 +81,37 @@ const AddToChatScreen = (props) => {
           />
         </View>
 
-        {/* Button to select image from gallery */}
-        <Button title="Select Image" onPress={selectImageFromGallery} />
-
-        {/* Display selected group image */}
-        {groupImage && (
-          <Image
-            source={{ uri: groupImage }}
-            style={{ width: 100, height: 100, alignSelf: 'center', marginTop: 20 }}
-          />
-        )}
+        {/* Social media icons for group logo selection */}
+        <View style={styles.socialMediaIcons}>
+          <TouchableOpacity onPress={() => setSelectedLogo('facebook')}>
+            <FontAwesome name="facebook-square" size={50} color={selectedLogo === 'facebook' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('twitter')}>
+            <FontAwesome name="twitter-square" size={50} color={selectedLogo === 'twitter' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('instagram')}>
+            <FontAwesome name="instagram" size={50} color={selectedLogo === 'instagram' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('tiktok')}>
+            <FontAwesome name="tiktok" size={50} color={selectedLogo === 'tiktok' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('youtube')}>
+            <FontAwesome name="youtube" size={50} color={selectedLogo === 'youtube' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('slack')}>
+            <FontAwesome name="slack" size={50} color={selectedLogo === 'slack' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('discord')}>
+            <FontAwesome name="discord" size={50} color={selectedLogo === 'discord' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('upwork')}>
+            <FontAwesome name="upwork" size={50} color={selectedLogo === 'upwork' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSelectedLogo('fiverr')}>
+            <FontAwesome name="fiverr" size={50} color={selectedLogo === 'fiverr' ? '#36802D' : 'gray'} />
+          </TouchableOpacity>
+          {/* Add more social media icons as needed */}
+        </View>
 
         <TouchableOpacity style={{ marginTop: 20 }} onPress={createNewChat}>
           <Text style={{ fontSize: 20, color: '#36802D', alignSelf: 'center' }}>Create Chat</Text>
@@ -136,6 +136,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF9F6',
     marginTop: '30%',
     flex: 1
+  },
+  socialMediaIcons: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    flexWrap: 'wrap',
+    marginTop: 20,
   },
   loginContainer: {
     flexDirection: 'row',

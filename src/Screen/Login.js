@@ -66,7 +66,7 @@ const Login = () => {
             if (docSnap.exists()) {
               console.log('user data:', docSnap.data());
               dispatch(SET_USER(docSnap.data()));
-              // Redirect to HomeScreen upon successful login
+              
               navigation.replace('HomeScreen');
             } else {
               alert('User does not exist');
@@ -76,10 +76,10 @@ const Login = () => {
       } catch (error) {
         console.error('Error logging in:', error.message);
         if (error.code === 'auth/invalid-credential') {
-          // Handle invalid credential error
+          
           alert('Invalid credentials. Please check your email and password.');
         } else {
-          // Handle other errors
+          
           alert('Error logging in. Please try again later.');
         }
       }
@@ -110,7 +110,7 @@ const Login = () => {
 <View style={{ width: '90%', height: 50, borderWidth: 1, borderColor: 'gray', borderRadius: 10, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', marginTop: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 10 }}>
   <MaterialIcons name="vpn-key" size={24} color='#777' style={{ marginRight: 10 }} />
   <TextInput
-    style={{ flex: 1 }} // Ensure the TextInput expands to fill the available space
+    style={{ flex: 1 }}
     placeholder="Enter Password"
     value={password}
     onChangeText={handlePasswordChange}
