@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     editIconContainer: {
         position: 'absolute',
         top: 0,
-        right: 145,
+        right: '40%',
         height: 25,
         backgroundColor: 'green',
         padding: 4,

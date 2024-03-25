@@ -1,20 +1,21 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useDispatch } from "react-redux";
 import { auth } from "../config/firebase";
 import { useSelector } from "react-redux";
-const ProfileScreen = ({ route, navigation }) => {
-    const user = useSelector((state) => state.user);
-    
-    const dispatch = useDispatch();
 
-    // Fetch user data when the component mounts
-    useLayoutEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            setUser(user);
-        });
-        return unsubscribe;
-    }, []);
+const ProfileScreen = ({ navigation }) => {
+    const user = useSelector((state) => state.user);
+    const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+        // Set user data when the component mounts
+        if (user) {
+            setUserData(user);
+        }
+    }, [user]);
+
+    const dispatch = useDispatch();
 
     const handleLogout = () => {
         auth
@@ -28,20 +29,30 @@ const ProfileScreen = ({ route, navigation }) => {
             });
     };
 
+    const handleEditProfile = () => {
+        // Navigate to the edit profile screen
+        navigation.navigate('EditProfile', { userData: userData });
+    };
+
     return (
         <View style={styles.container}>
-            {user && (
+            {userData && (
                 <>
-                    <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
+                    <Image source={{ uri: userData.profilePic }} style={styles.profilePic} />
                     <View style={styles.userInfo}>
-                        <Text style={styles.userName}>{user.name}</Text>
-                        <Text style={styles.userEmail}>{user.email}</Text>
+                        <Text style={styles.userName}>{userData.name}</Text>
+                        <Text style={styles.userEmail}>{userData.email}</Text>
+                        {/* Add more user information here */}
                     </View>
                 </>
             )}
+            <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
+                <Text style={styles.buttonText}>Edit Profile</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={handleLogout}>
                 <Text style={styles.buttonText}>Logout</Text>
             </TouchableOpacity>
+            {/* Add more options/buttons here */}
         </View>
     );
 };
@@ -68,15 +79,16 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     userEmail: {
-       fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 5,
+        fontSize: 18,
+        marginBottom: 10,
     },
     button: {
         backgroundColor: '#007bff',
         padding: 10,
         borderRadius: 5,
         marginTop: 10,
+        width: 150,
+        alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
