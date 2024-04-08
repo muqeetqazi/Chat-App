@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Platform, Alert, FlatList } from 'react-native';
 import { useSelector } from "react-redux";
-import Input from '../componets/Input';
-import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons, Entypo, AntDesign, Ionicons } from '@expo/vector-icons';
 import { doc, setDoc } from "firebase/firestore";
-import { firebaseAuth, firestoreDB } from "../config/firebase";
+import { firestoreDB } from "../config/firebase";
 import { TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const AddToChatScreen = (props) => {
+const AddToChatScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user);
   const [addChat, setAddChat] = useState("");
@@ -25,6 +24,11 @@ const AddToChatScreen = (props) => {
 
   // Function to create a new chat
   const createNewChat = async () => {
+    if (!addChat.trim()) {
+      Alert.alert('Error', 'Please enter a valid chat name.');
+      return;
+    }
+
     let id = `${Date.now()}`;
   
     // Use the unique ID (timestamp) to create a new chat
@@ -35,93 +39,89 @@ const AddToChatScreen = (props) => {
       groupLogo: selectedLogo // Include selected logo in the document
     }
   
-    if (addChat !== "") {
-      setDoc(doc(firestoreDB, "chats", id), _doc).then(() => {
-        setAddChat("");
-        setSelectedLogo(null);
-        navigation.replace("HomeScreen");
-      }).catch((err) => {
-        console.log("Error:", err);
-      })
-    }
+    setDoc(doc(firestoreDB, "chats", id), _doc).then(() => {
+      setAddChat("");
+      setSelectedLogo(null);
+      navigation.replace("HomeScreen");
+    }).catch((err) => {
+      console.log("Error:", err);
+      Alert.alert('Error', 'Failed to create chat. Please try again later.');
+    });
   }
+
   
+  const socialMediaIcons = [
+    { name: 'instagram', selected: selectedLogo === 'instagram' },
+    { name: 'facebook', selected: selectedLogo === 'facebook' },
+    { name: 'youtube', selected: selectedLogo === 'youtube' },
+    { name: 'linkedin', selected: selectedLogo === 'linkedin' },
+    { name: 'twitter', selected: selectedLogo === 'twitter' },
+    { name: 'snapchat-ghost', selected: selectedLogo === 'snapchat' },
+    { name: 'whatsapp', selected: selectedLogo === 'whatsapp' },
+    { name: 'pinterest', selected: selectedLogo === 'pinterest' },
+    { name: 'twitch', selected: selectedLogo === 'twitch' },
+    { name: 'reddit', selected: selectedLogo === 'reddit' },
+    { name: 'slack', selected: selectedLogo === 'slack' },
+    
+  ];
+
+  // Render item for FlatList
+  const renderIcon = ({ item }) => (
+    <TouchableOpacity onPress={() => setSelectedLogo(item.name)}>
+      <FontAwesome name={item.name} size={50} color={item.selected ? '#36802D' : 'gray'} style={{ marginHorizontal: 10 }} />
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={{ top: 40, left: 10 }} onPress={() => props.navigation.goBack()}>
-        <MaterialIcons name="chevron-left" size={32} color={'white'} />
-      </TouchableOpacity>
-      <TouchableOpacity style={{ position: 'absolute', right: 20, top: 35 }} onPress={() => console.log('Profile picture pressed')}>
-        <Image
-          source={{ uri: user.profilePic }}
-          resizeMode="cover"
-          style={{ width: 50, height: 50, borderRadius: 25, borderWidth: 3, borderColor: '#77AB59' }}
+            <View style={styles.container}>
+              <TouchableOpacity style={{ top: 40, left: 10 }} onPress={() => navigation.goBack()}>
+                <MaterialIcons name="chevron-left" size={32} color={'white'} />
+              </TouchableOpacity>
+              <TouchableOpacity style={{ position: 'absolute', right: 20, top: 35 }} onPress={() => console.log('Profile picture pressed')}>
+                <Image
+                  source={{ uri: user.profilePic }}
+                  resizeMode="cover"
+                  style={{ width: 50, height: 50, borderRadius: 25, borderWidth: 3, borderColor: '#77AB59' }}
+                />
+              </TouchableOpacity>
+              <View style={styles.maincomponent}>
+                <View style={{
+                  width: '80%',
+                  height: 50,
+                  borderWidth: 1,
+                  borderColor: 'gray',
+                  borderRadius: 15,
+                  alignSelf: 'center',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 50,
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 10,
+                }}>
+                  <TextInput
+                    style={{ flex: 1 }}
+                    placeholder='Create a new chat'
+                    value={addChat}
+                    onChangeText={(text) => setAddChat(text)}
+                  />
+                </View>
+
+                <FlatList
+          data={socialMediaIcons}
+          renderItem={renderIcon}
+          keyExtractor={(item) => item.name}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[styles.socialMediaIcons, { height: 100 }]} 
         />
-      </TouchableOpacity>
-      <View style={styles.maincomponent}>
-        <View style={{
-          width: '80%',
-          height: 50,
-          borderWidth: 1,
-          borderColor: 'gray',
-          borderRadius: 15,
-          alignSelf: 'center',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: 50,
-          backgroundColor: '#FFFFFF',
-          paddingHorizontal: 10,
-        }}>
-          <Ionicons name="chatbubbles" size={24} color={"#777"} style={{ marginRight: 10 }} />
-          <TextInput
-            style={{ flex: 1 }}
-            placeholder='Create a new chat'
-            value={addChat}
-            onChangeText={(text) => setAddChat(text)}
-          />
-        </View>
 
-        {/* Social media icons for group logo selection */}
-        <View style={styles.socialMediaIcons}>
-          <TouchableOpacity onPress={() => setSelectedLogo('facebook')}>
-            <FontAwesome name="facebook-square" size={50} color={selectedLogo === 'facebook' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('twitter')}>
-            <FontAwesome name="twitter-square" size={50} color={selectedLogo === 'twitter' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('instagram')}>
-            <FontAwesome name="instagram" size={50} color={selectedLogo === 'instagram' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('tiktok')}>
-            <FontAwesome name="tiktok" size={50} color={selectedLogo === 'tiktok' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('youtube')}>
-            <FontAwesome name="youtube" size={50} color={selectedLogo === 'youtube' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('slack')}>
-            <FontAwesome name="slack" size={50} color={selectedLogo === 'slack' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('discord')}>
-            <FontAwesome name="discord" size={50} color={selectedLogo === 'discord' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('upwork')}>
-            <FontAwesome name="upwork" size={50} color={selectedLogo === 'upwork' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setSelectedLogo('fiverr')}>
-            <FontAwesome name="fiverr" size={50} color={selectedLogo === 'fiverr' ? '#36802D' : 'gray'} />
-          </TouchableOpacity>
-          {/* Add more social media icons as needed */}
-        </View>
+                <TouchableOpacity style={styles.createChatButton} onPress={createNewChat}>
+                  <Text style={styles.createChatButtonText}>Create Chat</Text>
+                </TouchableOpacity>
 
-        <TouchableOpacity style={{ marginTop: 20 }} onPress={createNewChat}>
-          <Text style={{ fontSize: 20, color: '#36802D', alignSelf: 'center' }}>Create Chat</Text>
-        </TouchableOpacity>
-
-        <View style={styles.loginContainer}>
-
-        </View>
-      </View>
-    </View>
+                
+              </View>
+            </View>
   );
 };
 
@@ -135,19 +135,28 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 60,
     backgroundColor: '#FAF9F6',
     marginTop: '30%',
-    flex: 1
+    flex: 1,
+    alignItems: 'center',
   },
   socialMediaIcons: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    flexWrap: 'wrap',
     marginTop: 20,
+    paddingHorizontal: 10,
   },
-  loginContainer: {
-    flexDirection: 'row',
-    marginTop: 30,
-    marginLeft: '25%',
-    fontSize: 15,
+  createChatButton: {
+    marginBottom: 150,
+    backgroundColor: '#36802D',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  createChatButtonText: {
+    fontSize: 20,
+    color: 'white',
+    alignSelf: 'center',
+  },
+  additionalFunctionalityButton: {
+    marginTop: 20,
+    alignSelf: 'center',
   },
 });
 

@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   loginLink: {
-    color: '#36802D',
+    color: '#36802D'
   }
 });
 
